@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <list>
+#include <unordered_map>
 
 using namespace std;
 
@@ -20,35 +21,66 @@ vector<string> readWordList(string filename) {
     return wordList;
 }
 
-void guessingGame(string answer) {
-    cout << "Enter a five letter word: " << endl;
-    string guess;
-    cin >> guess;
+bool guessingGame(string answer) {
+    int tries = 0;
+    transform(answer.begin(), answer.end(), answer.begin(), ::toupper);
 
-    if (guess.size() != 5) {
-        cout << "Guess must be exactly 5 letters!" << endl;
-        return;
-    }
+    while (tries < 5) {
+        cout << "Enter a five letter word: " << endl;
+        string guess;
+        cin >> guess;
+        transform(guess.begin(), guess.end(), guess.begin(), ::toupper);
 
-    int count = 0;
-
-    for (int i = 0; i < guess.size(); ++i) {
-        char c = tolower(guess[i]);
-        if (c == answer[i]) {
-            cout << "\033[32m" << c << "\033[0m"; // Green letter
-            count += 1;
-        } else if (answer.find(c) != string::npos) {
-            cout << "\033[33m" << c << "\033[0m"; // Yellow letter
-        } else if (answer.find(c) != i) {
-            cout << c; // Default letter
+        if (guess.size() != 5) {
+            cout << "Guess must be exactly 5 letters!" << endl;
+            continue;
         }
-    }
-    cout << endl;
+        unordered_map<char, int> freq;
+        for (char c : answer) freq[c]++;
 
-    if (count == 5) {
-        cout << "You guessed correctly! Congratulations!" << endl;
-        exit(0);
+        vector<char> result_colors(5, 'g');
+
+        // Green letter pass
+        for (int i = 0; i < guess.size(); ++i) {
+            if(guess[i] == answer[i]){
+                result_colors[i] = 'G';
+                freq[answer[i]]--;
+            }
+        }
+
+        // Yellow letter pass
+        for (int i = 0; i < guess.size(); ++i) {
+            if (result_colors[i] != 'G') {
+                if (freq[guess[i]] > 0) {
+                    result_colors[i] = 'Y';
+                    freq[guess[i]]--;
+                }
+            }
+        }
+
+        int count = 0;
+
+        //Display results
+        for (int i = 0; i < guess.size(); ++i) {
+            if (result_colors[i] == 'G') {
+                cout << "\033[32m" << guess[i] << "\033[0m";
+                count++;
+            } else if (result_colors[i] == 'Y') {
+                cout << "\033[33m" << guess[i] << "\033[0m";
+            } else {
+                cout << guess[i];
+            }
+        }
+        cout << endl;
+
+        if (count == 5) {
+            cout << "You guessed correctly! Congratulations!" << endl;
+            return true;
+        }
+        tries++;
     }
+
+    return false;
 }
 
 
@@ -86,12 +118,15 @@ int main() {
             cout << "Failed to load list. Please try again.\n" << endl;
         }
     }
+
     int ind = rand() % wordList.size();
     string answerWord = wordList[ind];
 
-    for (int i = 0; i < 5; ++i) {
-        guessingGame(answerWord);
+    bool success = guessingGame(answerWord);
+
+    if (!success) {
+        cout << "Game over! The correct word was: " << answerWord << endl;
     }
-    cout << "Game over! The correct word was: " << answerWord << endl;
+
     return 0;
 }
