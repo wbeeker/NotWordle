@@ -1,4 +1,4 @@
-Simple Wordle simulation using C++. 
+Simple Wordle simulation using C++. Allows user to upload a custom word-list of 5-letter words. Defaults to 'word_list.txt'. Two sample lists are included in this repository. User have 5 chances to correctly guess the 5-letter word. If a letter is guessed correctly, it turns green. If the letter exists in the word but is not placed in the correct position, it turns yellow. 
 
 
 ![Image](https://github.com/user-attachments/assets/3c903d9e-dfde-47dd-8e93-427269eb39d1)
