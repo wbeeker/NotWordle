@@ -1,1 +1,1 @@
-NotWordle
+Simple Wordle simulation using C++. 
